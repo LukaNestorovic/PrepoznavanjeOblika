@@ -131,7 +131,8 @@ def model_evaluation(y, y_predicted, N, d):
 x = df.drop(['PM_US Post'], axis=1).copy()
 y = df['PM_US Post'].copy()
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.15, train_size=0.7,random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.15,random_state=42)
+x_train1, x_val, y_train1, y_val = train_test_split(x_train, y_train, test_size=0.15,random_state=42)
 
 # Osnovni oblik linearne regresije sa hipotezom y=b0+b1x1+b2x2+...+bnxn
 # Inicijalizacija
@@ -294,15 +295,46 @@ print(y.unique())
 
 def evaluation_classifier(conf_mat):
     
-    TP = conf_mat[1,1]
-    TN = conf_mat[0,0]
-    FP = conf_mat[0,1]
-    FN = conf_mat[1,0]
+    TP = conf_mat[0,0]
+    TN = conf_mat[1,1] + conf_mat[1,2] + conf_mat[2,1] + conf_mat[2,2]
+    FP = conf_mat[1,0] + conf_mat[2,0]
+    FN = conf_mat[0,1] + conf_mat[0,2]
     precision = TP/(TP+FP)
     accuracy = (TP+TN)/(TP+TN+FP+FN)
     sensitivity = TP/(TP+FN)
     specificity = TN/(TN+FP)
     F_score = 2*precision*sensitivity/(precision+sensitivity)
+    print('Za bezbedan vazduh:')
+    print('precision: ', precision)
+    print('accuracy: ', accuracy)
+    print('sensitivity/recall: ', sensitivity)
+    print('specificity: ', specificity)
+    print('F score: ', F_score)
+    TP = conf_mat[1,1]
+    TN = conf_mat[0,0] + conf_mat[0,2] + conf_mat[2,0] + conf_mat[2,2]
+    FP = conf_mat[0,1] + conf_mat[2,1]
+    FN = conf_mat[1,0] + conf_mat[1,2]
+    precision = TP/(TP+FP)
+    accuracy = (TP+TN)/(TP+TN+FP+FN)
+    sensitivity = TP/(TP+FN)
+    specificity = TN/(TN+FP)
+    F_score = 2*precision*sensitivity/(precision+sensitivity)
+    print('Za nebezbedan vazduh:')
+    print('precision: ', precision)
+    print('accuracy: ', accuracy)
+    print('sensitivity/recall: ', sensitivity)
+    print('specificity: ', specificity)
+    print('F score: ', F_score)
+    TP = conf_mat[2,2]
+    TN = conf_mat[0,0] + conf_mat[0,1] + conf_mat[1,0] + conf_mat[1,1]
+    FP = conf_mat[0,2] + conf_mat[1,2]
+    FN = conf_mat[2,0] + conf_mat[2,1]
+    precision = TP/(TP+FP)
+    accuracy = (TP+TN)/(TP+TN+FP+FN)
+    sensitivity = TP/(TP+FN)
+    specificity = TN/(TN+FP)
+    F_score = 2*precision*sensitivity/(precision+sensitivity)
+    print('Za opasan vazduh:')
     print('precision: ', precision)
     print('accuracy: ', accuracy)
     print('sensitivity/recall: ', sensitivity)
