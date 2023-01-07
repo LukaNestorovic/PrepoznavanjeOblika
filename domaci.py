@@ -1,3 +1,4 @@
+# %% podaci
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,7 +18,7 @@ from sklearn import metrics
 pd.set_option('display.float_format', lambda x: '%.2f' % x)
 pd.set_option('display.max_columns', None)
 
-df = pd.read_csv('ShenyangPM20100101_20151231.csv')
+df = pd.read_csv('ShanghaiPM20100101_20151231.csv')
 
 print(df.head())
 print(df.shape)
@@ -25,17 +26,13 @@ print(df.dtypes)
 print(df.info())
 print(df.isnull().sum() / df.shape[0] * 100)
 
-df.drop(['PM_Taiyuanjie'], axis=1, inplace=True)
-df.drop(['PM_Xiaoheyan'], axis=1, inplace=True)
+# %% nesto
+
+df.drop(['PM_Jingan'], axis=1, inplace=True)
+df.drop(['PM_Xuhui'], axis=1, inplace=True)
 print(df.isnull().sum() / df.shape[0] * 100)
 
-print(df.describe())
-print(df['DEWP'].unique())
 df['DEWP'] = df['DEWP'].replace(-97, np.nan)
-print(df['DEWP'].unique())
-
-print(df.describe())
-print(df['precipitation'].unique())
 
 df['DEWP'].fillna(method='bfill', inplace=True)
 df['HUMI'].fillna(method='bfill', inplace=True)
@@ -43,10 +40,83 @@ df['PRES'].fillna(np.nanmean(df['PRES']), inplace=True)
 df['TEMP'].fillna(method='bfill', inplace=True)
 df['cbwd'].fillna(method='bfill', inplace=True)
 df['Iws'].fillna(np.nanmean(df['Iws']), inplace=True)
+df.dropna(axis=0, inplace=True)
 print(df.isnull().sum() / df.shape[0] * 100)
 print(df.describe())
 
 print(df['PM_US Post'].describe())
+
+# %%
+
+df_season = df.set_index('season')
+zagadjenost = df_season.loc[1, 'PM_US Post']
+sb.distplot(zagadjenost, fit=stats.norm)
+plt.xlabel('Prolece cestice')
+plt.ylabel('Verovatnoća')
+plt.figure(5)
+zagadjenost = df_season.loc[2, 'PM_US Post']
+sb.distplot(zagadjenost, fit=stats.norm)
+plt.xlabel('Leto cestice')
+plt.ylabel('Verovatnoća')
+plt.figure(6)
+zagadjenost = df_season.loc[3, 'PM_US Post']
+sb.distplot(zagadjenost, fit=stats.norm)
+plt.xlabel('Jesen cestice')
+plt.ylabel('Verovatnoća')
+plt.figure(7)
+zagadjenost = df_season.loc[4, 'PM_US Post']
+sb.distplot(zagadjenost, fit=stats.norm)
+plt.xlabel('Zima cestice')
+plt.ylabel('Verovatnoća')
+plt.figure(8)
+df_year = df.set_index('year')
+godine = df_year.loc[2012]['TEMP']
+sb.distplot(godine, fit=stats.norm)
+plt.figure(9)
+df_year = df.set_index('year')
+godine = df_year.loc[2013]['TEMP']
+sb.distplot(godine, fit=stats.norm)
+plt.figure(10)
+df_year = df.set_index('year')
+godine = df_year.loc[2014]['TEMP']
+sb.distplot(godine, fit=stats.norm)
+plt.figure(11)
+df_year = df.set_index('year')
+godine = df_year.loc[2015]['TEMP']
+sb.distplot(godine, fit=stats.norm)
+
+# %%
+
+nesto = df['month'].unique()
+nesto.sort()
+gb = df.groupby(by=['month']).mean()
+print(gb['PM_US Post'])
+plt.figure(12)
+plt.plot(nesto, gb['PM_US Post'])
+#plt.plot(np.arange(1,13,1), gb['PM_US Post'])
+
+gb_year = df.groupby(by=['year']).mean()
+print(gb_year['PM_US Post'])
+
+Iprec = df['Iprec'].unique()
+Iprec.sort()
+gb_Iprec = df.groupby(by=['Iprec']).mean()
+print(gb_Iprec['PM_US Post'])
+plt.figure(13)
+#plt.plot(Iprec, gb_Iprec['PM_US Post'])
+plt.plot(np.arange(1,483,1), gb_Iprec['PM_US Post'])
+
+gb_humi = df.groupby(by=['HUMI']).mean()
+print(gb_humi['PM_US Post'])
+plt.figure(14)
+plt.plot(np.arange(1,860,1), gb_humi['PM_US Post'])
+
+gb_iws = df.groupby(by=['Iws']).mean()
+print(gb_iws['PM_US Post'])
+plt.figure(15)
+plt.plot(np.arange(1,510,1), gb_iws['PM_US Post'])
+
+# %%
 
 corr_mat = df.corr()
 sb.heatmap(corr_mat, annot=True)
@@ -54,7 +124,6 @@ plt.show()
 
 print(df)
 
-df.dropna(axis=0, inplace=True)
 print(df)
 print(df.isnull().sum() / df.shape[0] * 100)
 print(df.describe())
@@ -65,7 +134,6 @@ print(df.describe())
 #df['season'] = df['season'].replace(4,'zima')
 #print(df)
 
-df_season = df.set_index('season')
 print(df_season.head())
 plt.figure(1)
 plt.hist(df_season.loc[1, 'PM_US Post'], density=True, alpha=0.5, bins=50, label="prolece")
@@ -105,6 +173,7 @@ df_dummy = pd.get_dummies(df['cbwd'], prefix='wdir')
 df = pd.concat([df, df_dummy], axis=1)
 df.drop(['cbwd'], axis=1, inplace=True)
 
+# %%
 
 df1 = df
 df2 = df
@@ -145,6 +214,7 @@ first_regression_model.fit(x_train, y_train)
 y_predicted = first_regression_model.predict(x_test)
 
 # Evaluacija
+print('Osnovni')
 model_evaluation(y_test, y_predicted, x_train.shape[0], x_train.shape[1])
 
 # Ilustracija koeficijenata
@@ -191,6 +261,7 @@ regression_model_std.fit(x_train_std, y_train)
 y_predicted = regression_model_std.predict(x_test_std)
 
 # Evaluacija
+print('Standardizacija')
 model_evaluation(y_test, y_predicted, x_train_std.shape[0], x_train_std.shape[1])
 
 # Ilustracija koeficijenata
@@ -217,6 +288,7 @@ regression_model_inter.fit(x_inter_train, y_train)
 y_predicted = regression_model_inter.predict(x_inter_test)
 
 # Evaluacija
+print('Linearna')
 model_evaluation(y_test, y_predicted, x_inter_train.shape[0], x_inter_train.shape[1])
 
 
@@ -238,6 +310,7 @@ ridge_model.fit(x_inter_train, y_train)
 y_predicted = ridge_model.predict(x_inter_test)
 
 # Evaluacija
+print('Ridge')
 model_evaluation(y_test, y_predicted, x_inter_train.shape[0], x_inter_train.shape[1])
 
 
@@ -259,6 +332,7 @@ lasso_model.fit(x_inter_train, y_train)
 y_predicted = lasso_model.predict(x_inter_test)
 
 # Evaluation
+print('Lasso')
 model_evaluation(y_test, y_predicted, x_inter_train.shape[0], x_inter_train.shape[1])
 
 
@@ -276,6 +350,8 @@ plt.xlabel('Coefficient Index',fontsize=16)
 plt.ylabel('Coefficient Magnitude',fontsize=16)
 plt.legend(fontsize=13,loc='best')
 plt.show()
+
+# %%
 
 #KNN
 
