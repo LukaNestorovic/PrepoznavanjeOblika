@@ -436,7 +436,7 @@ for m in ['hamming', 'euclidean']:
         acc.append(accuracy_score(y_test, y_pred))
     plt.figure(figsize=(12,6))
     plt.plot(range(1,10), acc, color='red', linestyle='dashed', marker='o', markerfacecolor='blue', markersize=10)
-    plt.title('Error rate for' + m)
+    plt.title('Error rate for ' + m)
     plt.xlabel('K value')
     plt.ylabel('Acc')
     
